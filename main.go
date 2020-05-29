@@ -91,11 +91,11 @@ func walkFun(path string, file bool, nestingLevel int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, directory := range directoryList {
-		fmt.Println(directory.Name(), directory.IsDir())
-		if directory.Name() != ".idea" && directory.IsDir() {
-			walkFun(directory.Name(), file, nestingLevel+1)
-		}
+	for _, currentDirectory := range directoryList {
+		fmt.Println(tabCounter(nestingLevel)+currentDirectory.Name(), currentDirectory.IsDir())
+		//if directory.IsDir() {
+		//	walkFun(directory.Name(), file, nestingLevel+1)
+		//}
 	}
 }
 
