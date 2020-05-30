@@ -8,17 +8,8 @@ import (
 	"strings"
 )
 
-type File struct {
-	name         string
-	nestingLevel int
-}
+const name =
 
-type Folder struct {
-	name         string
-	nestingLevel int
-	folders      []Folder
-	files        []File
-}
 
 func main() {
 	out := os.Stdout
@@ -69,4 +60,8 @@ func tabCounter(count int) string {
 		result = append(result, "\t")
 	}
 	return strings.Join(result, "")
+}
+
+func isIgnoreDirectory( directoryName string) bool {
+	return false
 }
