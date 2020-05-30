@@ -4,9 +4,7 @@ import (
 	//"io"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -35,68 +33,23 @@ func main() {
 	}
 }
 
-func dirTree1(out *os.File, path string, files bool) error {
-	folderStruct := Folder{
-		nestingLevel: 0,
-	}
-	err := filepath.Walk(".",
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			nestingLevel := len(strings.Split(path, "/"))
-			if info.IsDir() {
-				folderStruct.folders = append(folderStruct.folders, Folder{
-					name:         info.Name(),
-					nestingLevel: nestingLevel,
-				})
-			} else {
-				folderStruct.files = append(folderStruct.files, File{
-					name:         info.Name(),
-					nestingLevel: nestingLevel,
-				})
-			}
-
-			fmt.Println("\t"+path, info.Size(), info.IsDir())
-			return nil
-		})
-	if err != nil {
-		log.Println(err)
-	}
-	//fmt.Println(fullPathToProject)
-	//os.Chdir(fullPathToProject + "/" + path + "/")
-	//fmt.Println(filepath.Abs("./"))
-	//if false {
-	//	return fmt.Errorf("Kek")
-	//}
-	return nil
-}
-
 func dirTree(out *os.File, path string, files bool) error {
-	//te, _ := os.Lstat(".")
-	//fmt.Println(te)
-	walkFun(".", files, 0)
-	//filesTest, err := ioutil.ReadDir(".")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//for _, file := range filesTest {
-	//	fmt.Println(file.Name(), file.IsDir())
-	//}
-	return nil
+	err := walkFun(".", files, 0)
+	return err
 }
 
-func walkFun(path string, file bool, nestingLevel int) {
+func walkFun(path string, file bool, nestingLevel int) error {
 	directoryList, err := ioutil.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, currentDirectory := range directoryList {
 		fmt.Println(tabCounter(nestingLevel)+currentDirectory.Name(), currentDirectory.IsDir())
-		//if directory.IsDir() {
-		//	walkFun(directory.Name(), file, nestingLevel+1)
-		//}
+		if currentDirectory.IsDir() {
+			walkFun(path+"/"+currentDirectory.Name(), file, nestingLevel+1)
+		}
 	}
+	return nil
 }
 
 func tabCounter(count int) string {
