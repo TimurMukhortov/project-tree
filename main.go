@@ -34,20 +34,31 @@ func main() {
 }
 
 func dirTree(out *os.File, path string, files bool) error {
-	err := walkFun(".", files, 0)
+	var startPath string
+	if path == "-f" {
+		startPath = "."
+	} else {
+		startPath = "./" + path
+	}
+	err := walkFun(startPath, files, 0)
 	return err
 }
 
-func walkFun(path string, file bool, nestingLevel int) error {
+func walkFun(path string, printFiles bool, nestingLevel int) error {
 	directoryList, err := ioutil.ReadDir(path)
 	if err != nil {
 		return err
 	}
 	for _, currentDirectory := range directoryList {
-		fmt.Println(tabCounter(nestingLevel)+currentDirectory.Name(), currentDirectory.IsDir())
 		if currentDirectory.IsDir() {
-			walkFun(path+"/"+currentDirectory.Name(), file, nestingLevel+1)
+			fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
+			walkFun(path+"/"+currentDirectory.Name(), printFiles, nestingLevel+1)
+		} else {
+			if printFiles {
+				fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
+			}
 		}
+
 	}
 	return nil
 }
