@@ -1,8 +1,8 @@
 package main
 
 import (
-	//"io"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -23,33 +23,45 @@ func main() {
 	}
 }
 
-func dirTree(out *os.File, path string, files bool) error {
+func dirTree(out io.Writer, path string, files bool) error {
 	var startPath string
 	if path == "-f" {
 		startPath = "."
 	} else {
 		startPath = "./" + path
 	}
-	err := walkFun(startPath, files, 0)
+	err := walkFun(out, startPath, files, 0)
 	return err
 }
 
-func walkFun(path string, printFiles bool, nestingLevel int) error {
+func walkFun(out io.Writer, path string, printFiles bool, nestingLevel int) error {
 	directoryList, err := ioutil.ReadDir(path)
 	if err != nil {
 		return err
 	}
 	for _, currentDirectory := range directoryList {
 		if isIgnoreDirectory(currentDirectory.Name()) {
-			if currentDirectory.IsDir() {
-				fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
-				walkFun(path+"/"+currentDirectory.Name(), printFiles, nestingLevel+1)
-			} else {
-				if printFiles {
-					fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
+			continue
+		}
+		if currentDirectory.IsDir() {
+			_, err := fmt.Fprintln(out, tabCounter(nestingLevel)+currentDirectory.Name())
+			//_, err := out.WriteString(tabCounter(nestingLevel) + currentDirectory.Name() + "\n")
+			if err != nil {
+				return err
+			}
+			err = walkFun(out, path+"/"+currentDirectory.Name(), printFiles, nestingLevel+1)
+			if err != nil {
+				return err
+			}
+		} else {
+			if printFiles {
+				_, err := fmt.Fprintln(out, tabCounter(nestingLevel)+currentDirectory.Name()+"\n")
+				if err != nil {
+					return err
 				}
 			}
 		}
+
 	}
 	return nil
 }
@@ -64,5 +76,5 @@ func tabCounter(count int) string {
 
 func isIgnoreDirectory(directoryName string) bool {
 	_, isExist := ignoreDirectory[directoryName]
-	return !isExist
+	return isExist
 }
