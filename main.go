@@ -8,8 +8,7 @@ import (
 	"strings"
 )
 
-const name =
-
+var ignoreDirectory = map[string]bool{".dockerignore": false, ".idea": true, ".git": true, ".gitignore": false}
 
 func main() {
 	out := os.Stdout
@@ -41,15 +40,16 @@ func walkFun(path string, printFiles bool, nestingLevel int) error {
 		return err
 	}
 	for _, currentDirectory := range directoryList {
-		if currentDirectory.IsDir() {
-			fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
-			walkFun(path+"/"+currentDirectory.Name(), printFiles, nestingLevel+1)
-		} else {
-			if printFiles {
+		if isIgnoreDirectory(currentDirectory.Name()) {
+			if currentDirectory.IsDir() {
 				fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
+				walkFun(path+"/"+currentDirectory.Name(), printFiles, nestingLevel+1)
+			} else {
+				if printFiles {
+					fmt.Println(tabCounter(nestingLevel) + currentDirectory.Name())
+				}
 			}
 		}
-
 	}
 	return nil
 }
@@ -62,6 +62,7 @@ func tabCounter(count int) string {
 	return strings.Join(result, "")
 }
 
-func isIgnoreDirectory( directoryName string) bool {
-	return false
+func isIgnoreDirectory(directoryName string) bool {
+	_, isExist := ignoreDirectory[directoryName]
+	return !isExist
 }
