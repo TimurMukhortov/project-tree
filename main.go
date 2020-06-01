@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strconv"
 )
 
 var ignoreDirectory = map[string]bool{".dockerignore": false, ".idea": true, ".git": true, ".gitignore": false}
@@ -67,6 +68,11 @@ func walkFun(out io.Writer, path string, printFiles bool, nestingLevel int, pref
 				return err
 			}
 		} else {
+			if currentDirectory.Size() == 0 {
+				afterPrefix = afterPrefix + " (empty)"
+			} else {
+				afterPrefix = afterPrefix + " (" + strconv.FormatInt(currentDirectory.Size(), 10) + "b)"
+			}
 			if printFiles {
 				_, err := fmt.Fprintln(out, afterPrefix)
 				if err != nil {
