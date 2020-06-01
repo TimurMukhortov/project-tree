@@ -94,16 +94,6 @@ func filterDirectory(directories []os.FileInfo) []os.FileInfo {
 	return filteredDirectories
 }
 
-func Filter(vs []string, f func(string) bool) []string {
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if f(v) {
-			vsf = append(vsf, v)
-		}
-	}
-	return vsf
-}
-
 //// ├
 //println("\u251C")
 
