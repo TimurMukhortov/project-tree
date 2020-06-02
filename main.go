@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-var ignoreDirectory = map[string]bool{".dockerignore": false, ".idea": true, ".git": true, ".gitignore": false}
+var ignoreDirectory = map[string]bool{".DS_Store": false, "dockerfile": false, "hw1.md": false, ".dockerignore": false, ".idea": true, ".git": true, ".gitignore": false}
 
 func main() {
 	out := os.Stdout
