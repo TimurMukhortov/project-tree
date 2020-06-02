@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -36,6 +37,9 @@ func dirTree(out io.Writer, path string, files bool) error {
 
 func walkFun(out io.Writer, path string, printFiles bool, nestingLevel int, prefix string) error {
 	directoryList, err := ioutil.ReadDir(path)
+	sort.Slice(directoryList, func(i, j int) bool {
+		return directoryList[i].Name() < directoryList[j].Name()
+	})
 	if !printFiles {
 		directoryList = filterDirectory(directoryList)
 	}
