@@ -75,8 +75,6 @@ func walkFun(out io.Writer, path string, printFiles bool, prefix string) error {
 				if err != nil {
 					return err
 				}
-			} else {
-				continue
 			}
 		}
 	}
