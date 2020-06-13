@@ -25,30 +25,25 @@ func main() {
 }
 
 func dirTree(out io.Writer, path string, files bool) error {
-	var startPath string
 	if path == "-f" {
-		startPath = "."
-	} else {
-		startPath = "." + string(os.PathSeparator) + path
+		path = "."
 	}
-	err := walkFun(out, startPath, files, 0, "")
-	return err
+	return walkFun(out, path, files, "")
 }
 
-func walkFun(out io.Writer, path string, printFiles bool, nestingLevel int, prefix string) error {
+func walkFun(out io.Writer, path string, printFiles bool, prefix string) error {
 	directoryList, err := ioutil.ReadDir(path)
-	sort.Slice(directoryList, func(i, j int) bool {
-		return directoryList[i].Name() < directoryList[j].Name()
-	})
-	if !printFiles {
-		directoryList = filterDirectory(directoryList)
-	}
-
 	if err != nil {
 		return err
 	}
+	if !printFiles {
+		directoryList = filterDirectory(directoryList)
+	}
+	sort.Slice(directoryList, func(i, j int) bool {
+		return directoryList[i].Name() < directoryList[j].Name()
+	})
 	for position, currentDirectory := range directoryList {
-		isLast := len(directoryList) == 0 || len(directoryList)-1 == position
+		isLast := len(directoryList)-1 == position
 		if isIgnoreDirectory(currentDirectory.Name()) {
 			continue
 		}
@@ -61,30 +56,29 @@ func walkFun(out io.Writer, path string, printFiles bool, nestingLevel int, pref
 			afterPrefix = prefix + "\u251C\u2500\u2500\u2500"
 			newPrefix = prefix + "\u2502\t"
 		}
-		afterPrefix = afterPrefix + currentDirectory.Name()
+		afterPrefix += currentDirectory.Name()
 		if currentDirectory.IsDir() {
-			_, err := fmt.Fprintln(out, afterPrefix)
-			if err != nil {
+			if _, err := fmt.Fprintln(out, afterPrefix); err != nil {
 				return err
 			}
-			err = walkFun(out, path+string(os.PathSeparator)+currentDirectory.Name(), printFiles, nestingLevel+1, newPrefix)
-			if err != nil {
+			if err := walkFun(out, path+string(os.PathSeparator)+currentDirectory.Name(), printFiles, newPrefix); err != nil {
 				return err
 			}
 		} else {
-			if currentDirectory.Size() == 0 {
-				afterPrefix = afterPrefix + " (empty)"
-			} else {
-				afterPrefix = afterPrefix + " (" + strconv.FormatInt(currentDirectory.Size(), 10) + "b)"
-			}
 			if printFiles {
+				if currentDirectory.Size() == 0 {
+					afterPrefix = afterPrefix + " (empty)"
+				} else {
+					afterPrefix = afterPrefix + " (" + strconv.FormatInt(currentDirectory.Size(), 10) + "b)"
+				}
 				_, err := fmt.Fprintln(out, afterPrefix)
 				if err != nil {
 					return err
 				}
+			} else {
+				continue
 			}
 		}
-
 	}
 	return nil
 }
@@ -103,15 +97,3 @@ func filterDirectory(directories []os.FileInfo) []os.FileInfo {
 	}
 	return filteredDirectories
 }
-
-//// ├
-//println("\u251C")
-
-//// ─
-//println("\u2500")
-
-//// └
-//println("\u2514")
-
-//// │
-//println("\u2502")
